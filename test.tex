@@ -1,0 +1,13 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{patterns}
+\begin{document}
+  \begin{tikzpicture}[scale=8]
+
+    \draw[->, thick] (-0.1,0) -- (1.1,0);
+    \draw [o-*] (0.2,0) -- +(0.7,0) node[below] {0,5};
+    \fill[pattern=north west lines, pattern color=black] (0,-.16ex) -- (0.2, -.16ex) -- (0.2, 0) -- (0,0) -- cycle;
+
+  \end{tikzpicture}
+\end{document}

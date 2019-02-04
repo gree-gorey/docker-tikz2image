@@ -1,9 +1,6 @@
-[![](https://images.microbadger.com/badges/image/superruzafa/tikz2image.svg)](https://microbadger.com/images/superruzafa/tikz2image "Get your own image badge on microbadger.com")
-[![](https://images.microbadger.com/badges/version/superruzafa/tikz2image.svg)](https://microbadger.com/images/superruzafa/tikz2image "Get your own version badge on microbadger.com")
+# tikz2svg
 
-# superruzafa/tikz2image
-
-Converts Tkiz (La)TeX documents into images.
+Converts Tkiz (La)TeX documents into SVG.
 
 ## Usage
 
@@ -17,13 +14,5 @@ $ cat tikz.tex
   \end{tikzpicture}
 \end{document}
 
-$ cat tikz.tex | docker container run --rm -i superruzafa/tikz2image -f png 2>/dev/null > tikz.png
-```
-
-Available output formats:
-
-* png (by default)
-* jpg
-* svg
-* pdf
+$ cat tikz.tex | docker container run --rm -i greegorey/tikz2svg > tikz.svg
 

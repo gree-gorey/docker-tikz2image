@@ -1,33 +1,34 @@
-FROM ubuntu:17.10
+FROM alpine:3.6 as builder
+RUN apk add --update-cache make gcc libc-dev cairo-dev poppler-dev git
+ENV PDF2SVG_VERSION v0.2.3
+RUN git clone https://github.com/dawbarton/pdf2svg pdf2svg
+WORKDIR /pdf2svg
+RUN git checkout $PDF2SVG_VERSION && ./configure && make
 
-ARG "BUILD_DATE=unknown"
-ARG "VCS_REF=unknown"
-ARG "VCS_URL=unknown"
-ARG "VERSION=v0.1.0-dev"
 
-LABEL \
-  maintainer="Alfonso Ruzafa <superruzafa@gmail.com>" \
-  org.label-schema.schema-version="1.0" \
-  org.label-schema.name="tikz2image" \
-  org.label-schema.description="Converts Tkiz (La)TeX documents into images" \
-  org.label-schema.usage="https://github.com/superruzafa/docker-tikz2image/blob/master/README.md" \
-  org.label-schema.vcs-url=$VCS_URL \
-  org.label-schema.vcs-ref=$VCS_REF \
-  org.label-schema.version=$VERSION \
-  org.label-schema.build-date=$BUILD_DATE \
-  org.label-schema.docker.cmd="cat tikz.tex | docker container run --rm -i superruzafa/tikz2image -f png 2>/dev/null > tikz.png"
+FROM frolvlad/alpine-glibc:alpine-3.8_glibc-2.28
+RUN mkdir /tmp/install-tl-unx
+WORKDIR /tmp/install-tl-unx
+COPY --from=builder /pdf2svg/pdf2svg /usr/local/bin/pdf2svg
+COPY texlive.profile .
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      texlive \
-      texlive-latex-extra \
-      imagemagick \
-      ghostscript \
-      pdf2svg
+# Install TeX Live 2016 with some basic collections
+RUN apk add --update-cache --virtual .fetch-deps ca-certificates openssl \
+    && update-ca-certificates \
+    && apk add --no-cache poppler-glib poppler-utils msttcorefonts-installer \
+    && update-ms-fonts \
+    && fc-cache -f \
+    && apk del .fetch-deps \
+    && apk --no-cache add perl wget xz tar \
+    && wget ftp://tug.org/historic/systems/texlive/2018/install-tl-unx.tar.gz \
+    && tar --strip-components=1 -xvf install-tl-unx.tar.gz \
+    && ./install-tl --repository http://mirror.ctan.org/systems/texlive/tlnet/ --profile=texlive.profile \
+    && tlmgr install collection-latex collection-latexextra \
+    && apk del perl wget xz tar \
+    && cd && rm -rf /tmp/install-tl-unx && mkdir /code
 
-RUN mkdir /code
+ENV PATH="/usr/local/texlive/2016/bin/x86_64-linux:${PATH}"
 WORKDIR /code
 COPY entrypoint.sh /code/
 
 ENTRYPOINT ["./entrypoint.sh"]
-
