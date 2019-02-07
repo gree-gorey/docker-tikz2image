@@ -31,4 +31,4 @@ ENV PATH="/usr/local/texlive/2016/bin/x86_64-linux:${PATH}"
 WORKDIR /code
 COPY entrypoint.sh /code/
 
-ENTRYPOINT ["./entrypoint.sh"]
+# ENTRYPOINT ["./entrypoint.sh"]
